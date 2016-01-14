@@ -1,0 +1,15 @@
+.checkbox>label {
+	padding-left: 0;
+}
+
+.toggle-group > label {
+	margin-top: 0;
+}
+
+.panel-group {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 300px;
+    overflow-y: scroll;
+    padding: 5px;
+}
