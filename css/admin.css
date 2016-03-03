@@ -13,3 +13,23 @@
     overflow-y: scroll;
     padding: 5px;
 }
+
+#list_cms tr,
+#list_cat tr {
+	cursor: pointer;
+}
+
+td small {
+	color: #959595;
+}
+
+.form-group label.toggle-label {
+	margin-top: 22px;
+}
+.toggle-on.btn {
+	padding-left: 12px;
+}
+
+.help-block {
+	margin-top: 12px;
+}

@@ -1,8 +1,8 @@
 <?php
-function smarty_function_widget_advantage_data($params, $template){
+function smarty_function_widget_blocklink_data($params, $template){
     plugins_Autoloader::register();
-    $collection = new plugins_advantage_public();
+    $collection = new plugins_blocklink_public();
 
-    $template->assign('advantages',$collection->getAdvs());;
+    $template->assign('links',$collection->getLinks());;
 }
 ?>

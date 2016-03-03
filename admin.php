@@ -51,6 +51,7 @@ class plugins_blocklink_admin extends DBblocklink{
 	 * 
 	 * @var idadmin
 	 */
+	protected $template;
 	public $idadmin;
 	/**
 	 * 
@@ -241,6 +242,10 @@ class plugins_blocklink_admin extends DBblocklink{
 					} elseif ($this->action == 'search') {
 						if (isset($this->q) && isset($this->type)) {
 							$results = parent::search($this->type,$this->q,$this->getlang);
+							//var_dump($results);
+							$iso = parent::getIso($this->getlang);
+							$this->template->assign('iso',$iso['iso']);
+							$this->template->assign('type',$this->type);
 							$this->template->assign('search_results',$results);
 							$this->template->display('loop/results.tpl');
 						}
@@ -273,6 +278,16 @@ class DBblocklink{
 	protected function c_show_table(){
 		$table = 'mc_plugins_blocklink';
 		return magixglobal_model_db::layerDB()->showTable($table);
+	}
+
+	/**
+	 * @param $lang
+	 * @return array
+	 */
+	protected function getIso($lang)
+	{
+		$query = "SELECT iso FROM mc_lang WHERE idlang = $lang";
+		return magixglobal_model_db::layerDB()->selectOne($query);
 	}
 
 	// GET
@@ -416,20 +431,39 @@ class DBblocklink{
 		if ($type == 'cat')
 		{
 			$query = "SELECT
-						`c`.`idclc` as idcat,
-						`c`.`clibelle` as root,
-						`c`.`pathclibelle` as curi,
+						`c`.`idclc` as parent,
+						`c`.`pathclibelle` as uriparent,
+						`c`.`clibelle` as nameparent,
 						`s`.`idcls` as id,
 						`s`.`slibelle` as name,
-						`s`.`pathslibelle` as suri
+						`s`.`pathslibelle` as uri
 					FROM `mc_catalog_c` as `c`
 					LEFT JOIN `mc_catalog_s` as `s`
 					ON `c`.`idclc` = `s`.`idclc`
 					WHERE
 						`c`.`idlang` = :idlang
 					AND
-						`s`.`slibelle` LIKE '".addslashes($str)."%'
+						`s`.`slibelle` LIKE '%".addslashes($str)."%'
 					ORDER BY `s`.`idcls`";
+			$query .= ($limit?" LIMIT ".$limit:"");
+
+			$data1 = magixglobal_model_db::layerDB()->select($query,array(':idlang' => $idlang));
+
+			$query = "SELECT
+						`c`.`idclc` as id,
+						`c`.`clibelle` as name,
+						`c`.`pathclibelle` as uri
+					FROM `mc_catalog_c` as `c`
+					WHERE
+						`c`.`idlang` = :idlang
+					AND
+						`c`.`clibelle` LIKE '%".addslashes($str)."%'
+					ORDER BY `c`.`idclc`";
+			$query .= ($limit?" LIMIT ".$limit:"");
+
+			$data2 = magixglobal_model_db::layerDB()->select($query,array(':idlang' => $idlang));
+
+			return array_merge($data1,$data2);
 		}
 		elseif ($type == 'cms')
 		{
@@ -438,20 +472,20 @@ class DBblocklink{
 							`p`.`title_page` as name,
 							`p`.`uri_page` as uri,
 							`p`.`idcat_p` as parent,
-							`parent`.`uri_page` as `uriparent`
+							`parent`.`uri_page` as `uriparent`,
+							`parent`.`title_page` as `nameparent`
 						FROM `mc_cms_pages` as `p`
 						LEFT JOIN `mc_cms_pages` as `parent`
 						ON `p`.`idcat_p` = `parent`.`idpage`
 						WHERE
 							`p`.`idlang` = :idlang
 						AND
-							`p`.`title_page` LIKE '".addslashes($str)."%'
+							`p`.`title_page` LIKE '%".addslashes($str)."%'
 						ORDER BY `p`.`idpage`";
+			$query .= ($limit?" LIMIT ".$limit:"");
+
+			return magixglobal_model_db::layerDB()->select($query,array(':idlang' => $idlang));
 		}
-
-		$query .= ($limit?" LIMIT ".$limit:"");
-
-		return magixglobal_model_db::layerDB()->select($query,array(':idlang' => $idlang));
 	}
 }
 ?>

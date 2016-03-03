@@ -41,12 +41,12 @@
  * @license    Dual licensed under the MIT or GPL Version 3 licenses.
  * @version    2.0
  * Author: Salvatore Di Salvo
- * Date: 17-12-15
- * Time: 10:38
- * @name advantage
- * Le plugin advantage
+ * Date: 03-03-16
+ * Time: 14:53
+ * @name blocklink
+ * Le plugin blocklink
  */
-class plugins_advantage_public extends database_plugins_advantage{
+class plugins_blocklink_public extends database_plugins_blocklink{
     /**
      * @var frontend_controller_plugins
      */
@@ -61,7 +61,7 @@ class plugins_advantage_public extends database_plugins_advantage{
     /**
      * @return array
      */
-    public function getAdvs(){
+    public function getLinks(){
         $iso = $this->template->getLanguage();
 
         if($iso == null) {
@@ -69,21 +69,21 @@ class plugins_advantage_public extends database_plugins_advantage{
             $iso = $default['iso'];
         }
 
-        $advs = parent::g_advs($iso);
-        if($advs != null){
-            return $advs;
+        $links = parent::g_links($iso);
+        if($links != null){
+            return $links;
         }
 
     }
 }
-class database_plugins_advantage{
+class database_plugins_blocklink{
     /**
      * Vérifie si les tables du plugin sont installé
      * @access protected
      * return integer
      */
     protected function c_show_table(){
-        $table = 'mc_plugins_advantage';
+        $table = 'mc_plugins_blocklink';
         return frontend_db_plugins::layerPlugins()->showTable($table);
     }
 
@@ -102,11 +102,11 @@ class database_plugins_advantage{
      * @param $iso
      * @return array
      */
-    protected function g_advs($iso)
+    protected function g_links($iso)
     {
-        $query = 'SELECT adv.* FROM mc_plugins_advantage as adv
-                JOIN mc_lang AS lang ON(adv.idlang = lang.idlang)
-                WHERE lang.iso = :iso ORDER BY advorder';
+        $query = 'SELECT link.* FROM mc_plugins_blocklink as link
+                JOIN mc_lang AS lang ON(link.idlang = lang.idlang)
+                WHERE lang.iso = :iso ORDER BY lorder';
 
         return magixglobal_model_db::layerDB()->select($query,array(
             ':iso'=>$iso

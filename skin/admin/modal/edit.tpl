@@ -7,15 +7,20 @@
                     <div class="form-group col-xs-12">
                         <label for="type">{#type_link#|ucfirst}&nbsp;*</label>
                         <select name="type" id="type" class="form-control">
-                            <option value="custom" {if isset($link.type)}{if $link.type eq 'custom'} selected{/if}{else} selected{/if} href="#custom-link" aria-controls="custom" role="tab" data-toggle="tab">{#custom_type_link#|ucfirst}</option>
-                            <option value="cms" {if isset($link.type)}{if $link.type eq 'cms'} selected{/if}{/if} href="#cms-link" aria-controls="cms" role="tab" data-toggle="tab">{#cms_type_link#|ucfirst}</option>
-                            <option value="cat" {if isset($link.type)}{if $link.type eq 'catalog'} selected{/if}{/if} href="#catalog-link" aria-controls="catalog" role="tab" data-toggle="tab">{#cat_type_link#|ucfirst}</option>
+                            <option value="custom"{if (isset($link.ltype) && $link.ltype eq 'custom') || !isset($link.ltype)} selected{/if} href="#custom-link" aria-controls="custom" role="tab" data-toggle="tab">{#custom_type_link#|ucfirst}</option>
+                            {if $config_cms eq 1}
+                            <option value="cms"{if isset($link.ltype) && $link.ltype eq 'cms'} selected{/if} href="#cms-link" aria-controls="cms" role="tab" data-toggle="tab">{#cms_type_link#|ucfirst}</option>
+                            {/if}
+                            {if $config_catalog eq 1}
+                            <option value="cat"{if isset($link.ltype) && $link.ltype eq 'cat'} selected{/if} href="#cat-link" aria-controls="catalog" role="tab" data-toggle="tab">{#cat_type_link#|ucfirst}</option>
+                            {/if}
                         </select>
                     </div>
 
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane fade in active" id="custom-link"></div>
-                        <div role="tabpanel" class="tab-pane fade" id="cms-link">
+                        <div role="tabpanel" class="tab-pane fade{if (isset($link.ltype) && $link.ltype eq 'custom') || !isset($link.ltype)} in active{/if}" id="custom-link"></div>
+                        {if $config_cms eq 1}
+                        <div role="tabpanel" class="tab-pane fade{if isset($link.ltype) && $link.ltype eq 'cms'} in active{/if}" id="cms-link">
                             <div class="col-xs-12">
                                 <div class="form-group">
                                     <label for="search_cms">Rechercher une page&nbsp;:</label>
@@ -48,7 +53,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" id="catalog-link">
+                        {/if}
+                        {if $config_catalog eq 1}
+                        <div role="tabpanel" class="tab-pane fade{if isset($link.ltype) && $link.ltype eq 'cat'} in active{/if}" id="cat-link">
                             <div class="col-xs-12">
                                 <div class="form-group">
                                     <label for="search_cat">Rechercher une catégorie&nbsp;:</label>
@@ -81,6 +88,7 @@
                                 </div>
                             </div>
                         </div>
+                        {/if}
                     </div>
 
                     <div class="form-group col-xs-12">
@@ -99,9 +107,6 @@
                     <div class="form-group">
                         <label for="blank" class="col-sm-3 control-label toggle-label">
                             {#blank_link#|ucfirst}
-                            <a href="#" class="text-info" data-trigger="hover" data-container="body" data-toggle="popover" data-placement="top" data-content="{#blank_link_ph#|ucfirst}">
-                                <span class="fa fa-question-circle"></span>
-                            </a>
                         </label>
                         <div class="col-sm-2">
                             <div class="checkbox">
@@ -110,6 +115,7 @@
                                 </label>
                             </div>
                         </div>
+                        <p class="col-xs-7 help-block">{#blank_link_ph#|ucfirst}</p>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -46,157 +46,109 @@ var search_Mod = (function ($, undefined) {
      * @param type
      */
     function search(type,id) {
-        var timeout = null
-        if (type === 'cms') {
-            $('#search_cms').on('keyup',function(){
-                var val = $(this).val().toLowerCase();
-                if(val != '') {
-                    $('.fa-search',$(this).prev()).addClass('hide');
-                    $('.clear',$(this).prev()).removeClass('hide');
-                } else {
-                    $('.fa-search',$(this).prev()).removeClass('hide');
-                    $('.clear',$(this).prev()).addClass('hide');
-                }
-                if(val.length > 1) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(function() {
-                        $.nicenotify({
-                            ntype: "ajax",
-                            uri: '/'+baseadmin+'/plugins.php?name=blocklink&getlang='+getlang+'&action=search',
-                            typesend: 'get',
-                            noticedata: {q: val, search_type: type},
-                            beforeParams: function () {
-                                var loader = $(document.createElement("tr")).attr('id', 'loader').append(
-                                    $(document.createElement("td")).addClass('text-center').append(
-                                        $(document.createElement("span")).addClass("fa fa-spinner fa-pulse")
-                                    )
-                                );
-                                $('#no-cms').prevAll('tr').remove();
-                                $('#no-cms').before(loader);
-                            },
-                            successParams: function (data) {
-                                $('#loader').remove();
-                                $.nicenotify.initbox(data, {
-                                    display: false
-                                });
-                                if (data === undefined) {
-                                    console.log(data);
-                                }
-                                if (data !== null) {
-                                    $(id+' .search-results').removeClass('hide');
-                                    $('#no-cms').before(data);
-                                }
-                                updateList('cms');
-                            }
-                        });
-                    }, 100);
-                } else {
-                    $('#no-cms').prevAll('tr').remove();
-                    $(id+' .search-results').addClass('hide');
-                    updateList('cms');
-                }
-            });
-            $('#cms_link .clear').click(function(e){
-                e.preventDefault();
-                $(this).parent().next().val('');
-                $(this).addClass('hide');
-                $(this).prev().removeClass('hide');
-                $('#no-cms').prevAll('tr').remove();
-                $(id+' .search-results').addClass('hide');
-                updateList('cms');
-                return false;
-            });
-        } else if (type === 'cat') {
-            $('#search_cat').on('keyup',function(){
-                var val = $(this).val().toLowerCase();
-                if(val != '') {
-                    $('.fa-search',$(this).prev()).addClass('hide');
-                    $('.clear',$(this).prev()).removeClass('hide');
-                } else {
-                    $('.fa-search',$(this).prev()).removeClass('hide');
-                    $('.clear',$(this).prev()).addClass('hide');
-                }
-                if(val.length > 1) {
-                    $.nicenotify({
-                        ntype: "ajax",
-                        uri: '/'+baseadmin+'/plugins.php?name=blocklink&getlang='+getlang+'&action=search',
-                        typesend: 'get',
-                        noticedata: {q: val, search_type: type},
-                        beforeParams: function () {
-                            var loader = $(document.createElement("tr")).attr('id', 'loader').append(
-                                $(document.createElement("td")).addClass('text-center').append(
-                                    $(document.createElement("span")).addClass("fa fa-spinner fa-pulse")
-                                )
-                            );
-                            $('#no-cat').prevAll('tr').remove();
-                            $('#no-cat').before(loader);
-                        },
-                        successParams: function (data) {
-                            $('#loader').remove();
-                            $.nicenotify.initbox(data, {
-                                display: false
-                            });
-                            if (data === undefined) {
-                                console.log(data);
-                            }
-                            if (data !== null) {
-                                $(id+' .search-results').removeClass('hide');
-                                $('#no-cat').before(data);
-                            }
-                            updateList('cat');
-                        }
-                    });
-                } else {
-                    $('#no-cat').prevAll('tr').remove();
-                    $(id+' .search-results').addClass('hide');
-                    updateList('cat');
-                }
-            });
-            $('#cat-link .clear').click(function(e){
-                e.preventDefault();
-                $(this).parent().next().val('');
-                $(this).addClass('hide');
-                $(this).prev().removeClass('hide');
-                $('#no-cat').prevAll('tr').remove();
-                $(id+' .search-results').addClass('hide');
-                updateList('cat');
-                return false;
-            });
-        }
+        var timeout = {};
+		timeout[type] = null;
+		$('#search_'+type).on('keyup',function(){
+			var val = $(this).val().toLowerCase();
+			if(val != '') {
+				$('.fa-search',$(this).prev()).addClass('hide');
+				$('.clear',$(this).prev()).removeClass('hide');
+			} else {
+				$('.fa-search',$(this).prev()).removeClass('hide');
+				$('.clear',$(this).prev()).addClass('hide');
+			}
+			if(val.length > 1) {
+				clearTimeout(timeout[type]);
+				timeout[type] = setTimeout(function() {
+					$.nicenotify({
+						ntype: "ajax",
+						uri: '/' + baseadmin + '/plugins.php?name=blocklink&getlang=' + getlang + '&action=search',
+						typesend: 'get',
+						noticedata: {q: val, search_type: type},
+						beforeParams: function () {
+							var loader = $(document.createElement("tr")).attr('id', 'loader').append(
+								$(document.createElement("td")).addClass('text-center').append(
+									$(document.createElement("span")).addClass("fa fa-spinner fa-pulse")
+								)
+							);
+							$('#no-' + type).prevAll('tr').remove();
+							$('#no-' + type).before(loader);
+						},
+						successParams: function (data) {
+							$('#loader').remove();
+							$.nicenotify.initbox(data, {
+								display: false
+							});
+							if (data === undefined) {
+								console.log(data);
+							}
+							if (data !== null) {
+								$(id + ' .search-results').removeClass('hide');
+								$('#no-' + type).before(data);
+							}
+							updateList(type);
+							getLinkData();
+						}
+					});
+				}, 100);
+			} else {
+				$('#no-'+type).prevAll('tr').remove();
+				$(id+' .search-results').addClass('hide');
+				updateList(type);
+			}
+		});
+		$('#'+type+'-link .clear').click(function(e){
+			e.preventDefault();
+			clear(type);
+			return false;
+		});
     }
+
+	/**
+	 *
+	 */
+	function getLinkData() {
+		$('.link').click(function(){
+			var link = {
+				url: $(this).data('url'),
+				title: $(this).data('name')
+			};
+
+			$('#url').val(link.url);
+			$('#title').val(link.title);
+		});
+	}
 
 	/**
      *
      */
     function updateList(type) {
-        if (type == 'cms') {
-            var rows = $('#list_cms tr');
-            if (rows.length > 1) {
-                $('#no-cms').addClass('hide');
-            } else {
-                if ($('#search_cms').val() != '' && $('#search_cms').val().toLowerCase().length > 1) {
-                    $('#no-cms').removeClass('hide');
-                } else {
-                    $('#no-cms').addClass('hide');
-                }
-            }
-        } else if (type == 'cat') {
-            var rows = $('#list_cat tr');
-            if (rows.length > 1) {
-                $('#no-cat').addClass('hide');
-            } else {
-                if ($('#search_cat').val() != '' && $('#search_cat').val().toLowerCase().length > 1) {
-                    $('#no-cat').removeClass('hide');
-                } else {
-                    $('#no-cat').addClass('hide');
-                }
-            }
-        }
+		var rows = $('#list_' + type + ' tr');
+		if (rows.length > 1) {
+			$('#no-' + type).addClass('hide');
+		} else {
+			var val = $('#search_'+type).val();
+			if (val != '' && val.toLowerCase().length > 1) {
+				$('#no-' + type).removeClass('hide');
+			} else {
+				$('#no-' + type).addClass('hide');
+			}
+		}
     }
+
+	/**
+	 *
+	 */
+	function clear() {
+		$('.search-box input').val('');
+		$('.clear').addClass('hide').prev().removeClass('hide');
+		$('.search-results tr:last-child').addClass('hide').prevAll('tr').remove();
+		$('.search-results').addClass('hide');
+	}
 
     return {
         // Fonction Public        
-        run: function (iso) {
+        run: function () {
             search('cms','#cms-link');
             search('cat','#cat-link');
 
@@ -230,6 +182,9 @@ var search_Mod = (function ($, undefined) {
                     });
                 });
             });
-        }
+        },
+		clear: function(type) {
+			clear(type);
+		}
     };
 })(jQuery);

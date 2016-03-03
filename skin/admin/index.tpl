@@ -14,9 +14,9 @@
         </a>
     </p>
     <!-- Maintenance Messages -->
-    <p class="col-sm-12 alert alert-warning fade in">
+    {*<p class="col-sm-12 alert alert-warning fade in">
         <span class="fa fa-warning"></span> Under development
-    </p>
+    </p>*}
     <table class="table table-bordered table-condensed table-hover">
         <thead>
         <tr>
