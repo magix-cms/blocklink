@@ -67,22 +67,26 @@ var MC_plugins_advantage = (function ($, undefined) {
 			},
 			submitHandler: function(form) {
 				$.nicenotify({
-					ntype: "submit",
+					ntype: "ajax",
 					uri: '/'+baseadmin+'/plugins.php?name=blocklink&getlang='+getlang+'&action=edit',
 					typesend: 'post',
-					idforms: $(form),
 					resetform: true,
+					datatype: 'json',
+					noticedata: $(form).serialize(),
 					successParams:function(data){
 						$('#edit-link').modal('hide');
 						window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-						$.nicenotify.initbox(data,{
+						$.nicenotify.initbox(data.notify,{
 							display:true
 						});
+						if(data.statut && data.result != null) {
+							$('#no-entry').before(data.result);
+							updateList();
+						}
 						var id = $('#idlink').val();
 						if (id != '') {
 							$('#order_'+$('#idlink').val()).remove();
 						}
-						getLink(baseadmin,getlang);
 					}
 				});
 				return false;

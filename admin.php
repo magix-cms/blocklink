@@ -171,15 +171,23 @@ class plugins_blocklink_admin extends DBblocklink{
 						$page['lorder'] = $c['nb'];
 					else
 						$page['lorder'] = 0;
-							parent::i_link($page);
+					parent::i_link($page);
+					$this->template->assign('links',parent::getLastlink($this->getlang));
+					$header= new magixglobal_model_header();
+					$header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+					$header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+					$header->pragma();
+					$header->cache_control("nocache");
+					$header->getStatus('200');
+					$header->json_header("UTF-8");
+					$this->message->json_post_response(true,'save',self::$notify,$this->template->fetch('loop/list.tpl'));
 					break;
 				case 'update':
 					$page['id'] = $this->idlink;
 					parent::u_link($page);
+					$this->notify('save');
 					break;
 			}
-
-			$this->notify('save');
 		}
 	}
 
